@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+<script>
+    async function fetchDataAndUpdateChart() {
+        try {
+            const response = await fetch('http://localhost:8090/api/getchart/bitcoin/10');
+            const data = await response.json();
+            console.log(data);
+
+            const chartData = data.prices.map(item => ({ x: new Date(item[0]), y: item[1] }));
+
+            console.log(chartData);
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Bitcoin Price',
+                        data: chartData,
+                        borderWidth: 2,
+                        borderColor: "#17f51b",
+                        backgroundColor: 'black',
+                        fill : false
+                    }]
+                },
+                options: {
+                    transitions: {
+                        show: {
+                            animations: {
+                                x: {
+                                    from: 0
+                                },
+                                y: {
+                                    from: 0
+                                }
+                            }
+                        },
+                        hide: {
+                            animations: {
+                                x: {
+                                    to: 0
+                                },
+                                y: {
+                                    to: 0
+                                }
+                            }
+                        }},
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    window.onload = fetchDataAndUpdateChart;
+</script>
+
+</html>
